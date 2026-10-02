@@ -1,0 +1,86 @@
+package kr.ac.jbnu.pwh.wsdpractice.api.v1;
+
+import kr.ac.jbnu.pwh.wsdpractice.api.dto.ItemDto;
+import kr.ac.jbnu.pwh.wsdpractice.api.request.ItemCreateRequest;
+import kr.ac.jbnu.pwh.wsdpractice.api.request.ItemUpdateRequest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.*;
+
+@RestController // @RestController : @Controller + @ResponseBody
+@RequestMapping("/api/v1/items")
+public class ItemController {
+    // 메모리용 임시 DB (예제용 )
+    private final Map<Long, ItemDto> store = new HashMap<>();
+    // -> Map : 데이터를 Key(Long타입의 ID)와 Value(ItemDto 객체)의 쌍으로 저장하는 자료구조
+    //            & 이런 방식으로 데이터를 관리해야 한다는 인터페이스
+    // -> HashMap : 그 Map을 실제로 구현한 클래스
+    private long sequence = 1L;
+    // 새로운 상품을 만들 때 ID를 자동으로 부여하기 위한 숫자
+
+    // 1) GET : 전체 조회
+    @GetMapping
+    public List<ItemDto> getItems() { // getItems()를 실행하면 ItemDto 객체 여러 개를 담는 List를 반환
+        return new ArrayList<>(store.values());
+        // --> store에 저장되어 있는 모든 ItemDto를 꺼내서 List로 만들어 반환.
+        // store.values() : store에서 value들만 가져옴
+    }
+
+    // 2) GET : 단건 조회 (PathVariable 사용 )
+    @GetMapping("/{id}")
+    public ResponseEntity<ItemDto> getItem(@PathVariable Long id) {
+        // @pathvariable = URL 경로에 들어있는 값을 변수로 받아서 사용하는 것
+        ItemDto item = store.get(id); // Map에서 요첨받은 ID를 이용해 해당하는 상품(value)를 가져와 item 변수에 저장.
+        if (item == null){
+            return ResponseEntity.notFound().build();
+            // ResponseEntity : Springboot에서 반환 형태를 지정해주는 역할로 REST API에서의 응답 형태를 자동으로 만들어주는 클래스
+            // ResponseEntity<ItemDto> : Spring에서 HTTP 응답 전체를 직접 제어할 수 있게 해주는 객체
+            // notFound().build() : 404와 Not Found 메시지를 반환. & 빌드 패턴
+        }
+        return ResponseEntity.ok(item);
+    }
+
+    // 3) POST : 생성
+    @PostMapping
+    public ResponseEntity<ItemDto> CreateItem(@RequestBody ItemCreateRequest request){
+        // (@RequestBody ItemCreateRequest request) << 파라미터
+        ItemDto item = new ItemDto();
+        item.setId(sequence++);
+        item.setName(request.getName());
+        item.setPrice(request.getPrice());
+
+        store.put(item.getId(), item);
+
+        return ResponseEntity.ok(item);
+    }
+
+    // 4) PUT : 수정
+    @PutMapping("/{id}")
+    public ResponseEntity<ItemDto> updateItem
+    (@PathVariable Long id, @RequestBody ItemUpdateRequest request) {
+        ItemDto item = store.get(id);
+        if (item == null) {
+            return ResponseEntity.notFound().build();
+        }
+        if (request.getName() != null) {
+            item.setName(request.getName());
+        }
+        if (request.getPrice() != null) {
+            item.setPrice(request.getPrice());
+        }
+        return ResponseEntity.ok(item);
+    }
+
+    // 5) DELETE : 삭제
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteItem(@PathVariable Long id){
+        ItemDto removed = store.remove(id);
+        // remove() : 삭제만 하는 것이 아닌 삭제된 Value를 반환
+        if(removed == null){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.noContent().build();
+        // noContent : 204 응답
+    }
+}
