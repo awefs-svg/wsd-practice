@@ -1,4 +1,4 @@
-# Backend Farmaework 연습
+# 백엔드 프레임워크 실습 과제
 => Spring Boot를 활용해 REST API를 구현하는 실습 과제입니다.
 
 # ItemDto
@@ -10,12 +10,12 @@
 => API의 응답 형식을 일관되게 통일하기 위해 작성한 클래스
     ( JSON 구조로 응답하도록 하는 조건 D에 충족 )
 
-===== Response Format(응답 형태) =====
+* Response Format(응답 형태)
 {
 "status" : "success",
 "data" : { ... }
 }
-=====================================
+
 
 # Controller
 =>ItemController를 통해 Item에 대한 REST API를 구현했습니다.__
@@ -72,13 +72,14 @@
 ( 요청, 응답 로그 출력을 하는 기타 기능으로 조건 B에 충족 )
 
 # HTTP Status Code(HTTP 상태코드)
-    - 200(OK) : 조회, 수정 성공
-    - 201(Created) : Item 생성 성공
-    - 204(NoContent) : Item 삭제 성공
-    - 400(BadRequest) : 입력값 또는 ID 형식 오류
-    - 404(NotFound) : 대상 Item 없음
-    - 500(InternalServerError) : 서버 내부 처리 중 오류 발생
-    - 503(Service Unavailable) : 일시적으로 서비스 이용 불가
+- 200(OK) : 조회, 수정 성공
+- 201(Created) : Item 생성 성공
+- 204(NoContent) : Item 삭제 성공
+- 400(BadRequest) : 입력값 또는 ID 형식 오류
+- 404(NotFound) : 대상 Item 없음
+- 500(InternalServerError) : 서버 내부 처리 중 오류 발생
+- 503(Service Unavailable) : 일시적으로 서비스 이용 불가
+
 => 400, 404 등의 상태 코드는 편의 메서드를 사용했지만 201와 500, 503은 ResponseEntity.status()를 통해
     상태 코드를 지정했고, 숫자를 직접 작성하는 대신 코드의 의미를 명확하게 표현하는 방법으로 
     import org.springframework.http.HttpStatus;를 추가하여 201, 500, 503을 
